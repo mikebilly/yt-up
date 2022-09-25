@@ -1,13 +1,22 @@
 #!/usr/bin/python
-
 import argparse
 import http.client as httplib
 import httplib2
 import os
 import random
 import time
-import urllib.request
-import urllib.error
+
+# import urllib.request
+# import urllib.error
+
+from oauth2client.file import Storage
+from oauth2client.client import flow_from_clientsecrets
+
+from oauth2client import tools
+
+# from oauth2client.tools import run
+from apiclient.discovery import build
+
 
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
@@ -15,7 +24,6 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 from google_auth_oauthlib.flow import InstalledAppFlow
-
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
 # we are handling retry logic ourselves.
@@ -53,11 +61,15 @@ API_VERSION = 'v3'
 
 VALID_PRIVACY_STATUSES = ('public', 'private', 'unlisted')
 
-
 # Authorize the request and store authorization credentials.
 def get_authenticated_service(CLIENT_SECRETS_FILE):
-  flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
-  credentials = flow.run_console()
+  storage = Storage("/content/youtube-upload-credentials.json")
+  credentials = storage.get()
+  if credentials is None or credentials.invalid:
+    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, SCOPES)
+    flags = tools.argparser.parse_args(args=['--noauth_local_webserver'])
+    credentials = tools.run_flow(flow, storage, flags)
+
   return build(API_SERVICE_NAME, API_VERSION, credentials = credentials)
 
 def initialize_upload(youtube, options):
