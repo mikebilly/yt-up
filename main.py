@@ -82,7 +82,10 @@ def initialize_upload(youtube, options):
       title=options.title,
       description=options.description,
       tags=tags,
-      categoryId=options.category
+      categoryId=options.category,
+      defaultLanguage=options.default_language,
+      defaultAudioLanguage=options.default_audio_language,
+      language=options.language
     ),
     status=dict(
       privacyStatus=options.privacyStatus
@@ -159,6 +162,18 @@ if __name__ == '__main__':
     default='')
   parser.add_argument('--privacyStatus', choices=VALID_PRIVACY_STATUSES,
     default='public', help='Video privacy status.')
+
+  parser.add_argument('--language',
+      default=None,
+      help="Language (ISO 639-1: en | fr | de | ...)")
+
+  parser.add_argument('--default_language',
+      default=None,
+      help="Default language (ISO 639-1: en | fr | de | ...)")
+  parser.add_argument('--default_audio_language',
+      default=None,
+      help="Default audio language (ISO 639-1: en | fr | de | ...)")
+      
   args = parser.parse_args()
 
   youtube = get_authenticated_service(args.json)
