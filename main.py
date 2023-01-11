@@ -63,7 +63,7 @@ VALID_PRIVACY_STATUSES = ('public', 'private', 'unlisted')
 
 # Authorize the request and store authorization credentials.
 def get_authenticated_service(CLIENT_SECRETS_FILE):
-  storage = Storage("/content/drive/Shareddrives/Unl/Colab/credentials/youtube-upload-credentials.json")
+  storage = Storage("/content/drive/MyDrive/credentials/youtube-upload-credentials.json")
   credentials = storage.get()
   if credentials is None or credentials.invalid:
     flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, SCOPES)
