@@ -8,7 +8,7 @@ import time
 
 # import urllib.request
 # import urllib.error
-
+ 
 from oauth2client.file import Storage
 from oauth2client.client import flow_from_clientsecrets
 
@@ -61,16 +61,33 @@ API_VERSION = 'v3'
 
 VALID_PRIVACY_STATUSES = ('public', 'private', 'unlisted')
 
+def filename(path):
+  return os.path.basename(path)
+  
 # Authorize the request and store authorization credentials.
-def get_authenticated_service(CLIENT_SECRETS_FILE):
-  storage = Storage("/content/drive/MyDrive/credentials/youtube-upload-credentials.json")
+def get_authenticated_service(client_secret_file):
+  client_secret_name, _ext = os.path.splitext(filename(client_secret_file))
+  if not os.path.exists("/content/drive/MyDrive/youtube_upload"):
+     os.makedirs("/content/drive/MyDrive/youtube_upload")
+     os.makedirs("/content/drive/MyDrive/youtube_upload/credentials")
+
+  folder_containing_credential = "/content/drive/MyDrive/youtube_upload/credentials/" + client_secret_name
+  if not os.path.exists(folder_containing_credential):
+    os.makedirs(folder_containing_credential)
+    print("making folder containing credentials for {}".format(client_secret_name))
+  else:
+    print("folder containing credentials for {} exists".format(client_secret_name))
+    
+  credential_json = folder_containing_credential + "/" + "credentials_for_" + client_secret_name + ".json"
+  storage = Storage(credential_json)
   credentials = storage.get()
   if credentials is None or credentials.invalid:
-    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, SCOPES)
+    flow = flow_from_clientsecrets(client_secret_file, SCOPES)
     flags = tools.argparser.parse_args(args=['--noauth_local_webserver'])
     credentials = tools.run_flow(flow, storage, flags)
 
   return build(API_SERVICE_NAME, API_VERSION, credentials = credentials)
+
 
 def initialize_upload(youtube, options):
   tags = None
